@@ -13,6 +13,7 @@ using ITableEntity = Azure.Data.Tables.ITableEntity;
 
 namespace WebService.Controllers
 {
+
     [Route("api/Groups")]
     [ApiController]
     public class GroupsController : ControllerBase
