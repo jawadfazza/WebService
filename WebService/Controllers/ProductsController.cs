@@ -25,11 +25,11 @@ namespace WebService.Controllers
         TableClient CodeSubGroupLanguages;
         public ProductsController(IConfiguration configuration)
         {
-         
+
             // New instance of the TableClient class
             TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
             // New instance of TableClient class referencing the server-side table
-            
+
             tableServiceClient.CreateTableIfNotExists(tableName: "DataProducts");
             tableServiceClient.CreateTableIfNotExists(tableName: "DataProductLanguages");
 
@@ -56,19 +56,19 @@ namespace WebService.Controllers
             var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
             var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
 
-            var subGroups = CodeSubGroups.Query<SubGroup>().Where(x=>x.GroupRowKey==group.RowKey).ToList();
-            var subGroup = subGroups[new Random().Next(0, subGroups.Count-1)];
+            var subGroups = CodeSubGroups.Query<SubGroup>().Where(x => x.GroupRowKey == group.RowKey).ToList();
+            var subGroup = subGroups[new Random().Next(0, subGroups.Count - 1)];
             var subGroupLan = CodeSubGroupLanguages.Query<SubGroupLanguage>().Where(x => x.SubGroupRowKey == subGroup.RowKey).ToList();
             DataProducts.AddEntity<Product>(new Product()
             {
                 PartitionKey = "1",
                 RowKey = guid,
                 GroupRowKey = group.RowKey,
-                SubGroupRowKey= subGroup.RowKey,
+                SubGroupRowKey = subGroup.RowKey,
                 StoreRowKey = Guid.NewGuid().ToString(),
                 Seq = 1,
                 ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
-                Price =new Random().Next(1,1000),
+                Price = new Random().Next(1, 1000),
                 ProductQuantity = new Random().Next(1, 100),
                 ProductAvailability = true,
                 ProductRating = 3.5,
@@ -80,7 +80,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name+" "+subGroupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name+" "+ new Random().Next(1, 1000);
+            string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
             DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
             {
                 PartitionKey = "1",
