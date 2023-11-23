@@ -169,6 +169,12 @@ namespace WebService.Controllers
         public string Gender { get; set; }
         public string PreferdLanguage { get; set; }
         public string AccountType { get; set; }
+        public string ProfilePictureUrl { get; set; }
+        public DateTime AccountCreatedDate { get; set; }
+        public DateTime? LastLoginDate { get; set; }
+        public string AccountStatus { get; set; }
+        public string UserRole { get; set; }
+
         public ETag ETag { get; set; } = default!;
         public DateTimeOffset? Timestamp { get; set; } = default!;
     }

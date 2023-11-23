@@ -19,10 +19,13 @@ namespace WebService.Controllers
     {
         TableClient DataProducts;
         TableClient DataProductLanguages;
+        TableClient DataShops;
+        TableClient DataShopLanguages;
         TableClient CodeGroups;
         TableClient CodeSubGroups;
         TableClient CodeGroupLanguages;
         TableClient CodeSubGroupLanguages;
+
         public ProductsController(IConfiguration configuration)
         {
 
@@ -38,19 +41,19 @@ namespace WebService.Controllers
             );
             DataProductLanguages = tableServiceClient.GetTableClient(
                tableName: "DataProductLanguages"
-           );
+            );
             CodeGroups = tableServiceClient.GetTableClient(
                tableName: "CodeGroups"
-           );
+            );
             CodeGroupLanguages = tableServiceClient.GetTableClient(
               tableName: "CodeGroupLanguages"
-          );
+            );
             CodeSubGroups = tableServiceClient.GetTableClient(
-              tableName: "CodeSubGroups"
-          );
+                tableName: "CodeSubGroups"
+            );
             CodeSubGroupLanguages = tableServiceClient.GetTableClient(
-            tableName: "CodeSubGroupLanguages"
-        );
+                tableName: "CodeSubGroupLanguages"
+             );
 
             string guid = Guid.NewGuid().ToString();
             var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
@@ -257,6 +260,7 @@ namespace WebService.Controllers
         }
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
+        public string ShopRowKey { get; set; }
         public string GroupRowKey { get; set; }
         public string SubGroupRowKey { get; set; }
         public string StoreRowKey { get; set; }
