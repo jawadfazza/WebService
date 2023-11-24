@@ -15,12 +15,6 @@ namespace WebService.Controllers
     {
         TableClient DataShops;
         TableClient DataShopLanguages;
-        TableClient Product;
-        TableClient ProductLanguage;
-        TableClient CodeGroups;
-        TableClient CodeGroupLanguages;
-        TableClient CodeSubGroups;
-        TableClient CodeSubGroupLanguages;
         public ShopsController(IConfiguration configuration)
         {
             // New instance of the TableClient class

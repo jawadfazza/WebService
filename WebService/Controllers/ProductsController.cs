@@ -97,7 +97,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
+            string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
 
             DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
             {

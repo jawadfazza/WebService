@@ -66,10 +66,19 @@ namespace WebService.Controllers
         }
 
         // GET api/<AccountsController>/5
-        [HttpGet("{id}")]
+        [HttpGet, Route("/api/Accounts/GetByRowKey")]
         public Accounts Get(string RowKey)
         {
             var Accounts = tableClient.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault();
+
+            return Accounts;
+        }
+
+        // GET api/<AccountsController>/5
+        [HttpGet, Route("/api/Accounts/GetByEmail")]
+        public Accounts GetByEmail(string emailAddress)
+        {
+            var Accounts = tableClient.Query<Accounts>(x => x.Email == emailAddress).FirstOrDefault();
 
             return Accounts;
         }
@@ -92,7 +101,14 @@ namespace WebService.Controllers
                 PasswordExpiredDate = DateTime.Now.ToUniversalTime(),
                 Gender=value.Gender,
                 PreferdLanguage=value.PreferdLanguage,
-                Timestamp = DateTime.Now
+                Timestamp = DateTime.Now,
+                AccountCreatedDate = DateTime.Now.ToUniversalTime(),
+                AccountStatus = value.AccountStatus,
+                AccountType = value.AccountType,
+                LastLoginDate = DateTime.Now.ToUniversalTime(),
+                ProfilePictureUrl = value.ProfilePictureUrl,
+                UserRole = value.UserRole,
+                
             }); 
 
             Mail.SendEmail(
@@ -109,19 +125,19 @@ namespace WebService.Controllers
 
 
         // PUT api/<AccountsController>/5
-        [HttpPost]
+        [HttpPost, Route("/api/Accounts/Update")]
         public async Task UpdateAsync([FromBody] Accounts value)
         {
             // Retrieve the entity you want to update
-            Accounts entity = await tableClient.GetEntityAsync<Accounts>(value.PartitionKey, value.RowKey);
+            Accounts entity = tableClient.GetEntity<Accounts>(value.PartitionKey, value.RowKey);
 
             entity.FullName = value.FullName;
-            entity.Email = value.Email;
-            entity.Password = value.Password;
             entity.PhoneNumber = value.PhoneNumber;
+            entity.Gender = value.Gender;
+            entity.PreferdLanguage = value.PreferdLanguage;
 
             // Update the entity in the table
-            await tableClient.UpdateEntityAsync<Accounts>(entity, entity.ETag);
+            tableClient.UpdateEntity<Accounts>(entity, entity.ETag);
         }
 
         // DELETE api/<AccountsController>/5
