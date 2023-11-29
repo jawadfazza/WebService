@@ -11,6 +11,7 @@ namespace WebService.Controllers
 {
     [Route("api/Shops")]
     [ApiController]
+
     public class ShopsController : ControllerBase
     {
         TableClient DataShops;
