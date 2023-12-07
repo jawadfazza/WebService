@@ -201,9 +201,7 @@ namespace WebService.Controllers
         [HttpPost]
         public void Create([FromBody] Product value)
         {
-           
             DataProducts.AddEntityAsync<Product>(value);
-           
         }
 
 
