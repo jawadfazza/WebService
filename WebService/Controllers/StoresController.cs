@@ -31,6 +31,7 @@ namespace WebService.Controllers
             DataStoreLanguages = tableServiceClient.GetTableClient(
                tableName: "DataStoreLanguages"
            );
+
         }
         // GET: api/<StoresController>
         [HttpGet, Route("/api/Stores/LoadPartialData")]
