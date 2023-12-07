@@ -9,43 +9,43 @@ using System.Linq;
 
 namespace WebService.Controllers
 {
-    [Route("api/Shops")]
+    [Route("api/Stores")]
     [ApiController]
 
-    public class ShopsController : ControllerBase
+    public class StoresController : ControllerBase
     {
-        TableClient DataShops;
-        TableClient DataShopLanguages;
-        public ShopsController(IConfiguration configuration)
+        TableClient DataStores;
+        TableClient DataStoreLanguages;
+        public StoresController(IConfiguration configuration)
         {
             // New instance of the TableClient class
             TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
             // New instance of TableClient class referencing the server-side table
 
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataShops");
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataShopLanguages");
+            tableServiceClient.CreateTableIfNotExists(tableName: "DataStores");
+            tableServiceClient.CreateTableIfNotExists(tableName: "DataStoreLanguages");
 
-            DataShops = tableServiceClient.GetTableClient(
-                tableName: "DataShops"
+            DataStores = tableServiceClient.GetTableClient(
+                tableName: "DataStores"
             );
-            DataShopLanguages = tableServiceClient.GetTableClient(
-               tableName: "DataShopLanguages"
+            DataStoreLanguages = tableServiceClient.GetTableClient(
+               tableName: "DataStoreLanguages"
            );
         }
-        // GET: api/<ShopsController>
-        [HttpGet, Route("/api/Shops/LoadPartialData")]
-        public IEnumerable<ShopView> LoadPartialData(int pageSize, int pageNumber, string Lan)
+        // GET: api/<StoresController>
+        [HttpGet, Route("/api/Stores/LoadPartialData")]
+        public IEnumerable<StoreView> LoadPartialData(int pageSize, int pageNumber, string Lan)
         {
-            var Shops = (from a in DataShops.Query<Shop>().Where(x => x.Active)
-                            join b in DataShopLanguages.Query<ShopLanguage>().Where(x => x.LanguageID == Lan && x.Active) on a.RowKey equals b.ShopRowKey
+            var Stores = (from a in DataStores.Query<Store>().Where(x => x.Active)
+                            join b in DataStoreLanguages.Query<StoreLanguage>().Where(x => x.LanguageID == Lan && x.Active) on a.RowKey equals b.StoreRowKey
                             select new
-                             ShopView
+                             StoreView
                             {
                                 RowKey = a.RowKey,
                                 ImageURL = a.ImageURL,
                                 PartitionKey = a.PartitionKey,
                                 Seq = a.Seq,
-                                // Assigning properties from Shop class to ShopView class
+                                // Assigning properties from Store class to StoreView class
                                 Name = a.Name,
                                 Description = a.Description,
                                 Location = a.Location,
@@ -64,23 +64,23 @@ namespace WebService.Controllers
                             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-            return Shops;
+            return Stores;
         }
 
-        [HttpGet, Route("/api/Shops/LoadPartialDataWithSearch")]
-        public IEnumerable<ShopView> LoadPartialData(int pageSize, int pageNumber, string searchQuery, string Lan)
+        [HttpGet, Route("/api/Stores/LoadPartialDataWithSearch")]
+        public IEnumerable<StoreView> LoadPartialData(int pageSize, int pageNumber, string searchQuery, string Lan)
         {
-            var Shops = (from a in DataShops.Query<Shop>().Where(x => x.Active)
-                            join b in DataShopLanguages.Query<ShopLanguage>().Where(x => x.LanguageID == Lan && x.Active)
-                            .Where(x => x.Name.Contains(searchQuery) || x.Description.Contains(searchQuery)) on a.RowKey equals b.ShopRowKey
+            var Stores = (from a in DataStores.Query<Store>().Where(x => x.Active)
+                            join b in DataStoreLanguages.Query<StoreLanguage>().Where(x => x.LanguageID == Lan && x.Active)
+                            .Where(x => x.Name.Contains(searchQuery) || x.Description.Contains(searchQuery)) on a.RowKey equals b.StoreRowKey
                             select new
-                            ShopView
+                            StoreView
                             {
                                 RowKey = a.RowKey,
                                 ImageURL = a.ImageURL,
                                 PartitionKey = a.PartitionKey,
                                 Seq = a.Seq,
-                                // Assigning properties from Shop class to ShopView class
+                                // Assigning properties from Store class to StoreView class
                                 Name = a.Name,
                                 Description = a.Description,
                                 Location = a.Location,
@@ -100,62 +100,62 @@ namespace WebService.Controllers
                 .OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-            return Shops;
+            return Stores;
         }
 
 
-        // GET: api/<ShopsController>
-        [HttpGet, Route("/api/Shops/LoadAllData")]
-        public IEnumerable<Shop> LoadAllData()
+        // GET: api/<StoresController>
+        [HttpGet, Route("/api/Stores/LoadAllData")]
+        public IEnumerable<Store> LoadAllData()
         {
-            var Shops = DataShops.Query<Shop>().OrderBy(x => x.Seq).ToList();
-            return Shops;
+            var Stores = DataStores.Query<Store>().OrderBy(x => x.Seq).ToList();
+            return Stores;
         }
 
-        // GET api/<ShopsController>/5
+        // GET api/<StoresController>/5
         [HttpGet("{id}")]
-        public Shop Get(string RowKey)
+        public Store Get(string RowKey)
         {
-            var Shop = DataShops.Query<Shop>(x => x.RowKey == RowKey).FirstOrDefault();
+            var Store = DataStores.Query<Store>(x => x.RowKey == RowKey).FirstOrDefault();
 
-            return Shop;
+            return Store;
         }
 
-        // POST api/<ShopsController>
+        // POST api/<StoresController>
         [HttpPost]
-        public void Create([FromBody] Shop value)
+        public void Create([FromBody] Store value)
         {
 
-            DataShops.AddEntityAsync<Shop>(value);
+            DataStores.AddEntityAsync<Store>(value);
 
         }
 
 
-        // PUT api/<ShopsController>/5
+        // PUT api/<StoresController>/5
         [HttpPost]
-        public async Task UpdateAsync([FromBody] ShopLanguage value)
+        public async Task UpdateAsync([FromBody] StoreLanguage value)
         {
             // Retrieve the entity you want to update
-            ShopLanguage entity = await DataShops.GetEntityAsync<ShopLanguage>(value.PartitionKey, value.RowKey);
+            StoreLanguage entity = await DataStores.GetEntityAsync<StoreLanguage>(value.PartitionKey, value.RowKey);
 
             entity.Name = value.Name;
 
             // Update the entity in the table
-            await DataShops.UpdateEntityAsync<ShopLanguage>(entity, entity.ETag);
+            await DataStores.UpdateEntityAsync<StoreLanguage>(entity, entity.ETag);
         }
 
-        // DELETE api/<ShopsController>/5
-        [HttpDelete("{RowKey}"), Route("/api/Shops/delete/{RowKey}")]
+        // DELETE api/<StoresController>/5
+        [HttpDelete("{RowKey}"), Route("/api/Stores/delete/{RowKey}")]
         public void Delete(string RowKey)
         {
-            var Shops = DataShops.DeleteEntityAsync("1", RowKey);
+            var Stores = DataStores.DeleteEntityAsync("1", RowKey);
         }
     }
 
 
-    public class ShopView
+    public class StoreView
     {
-        public ShopView()
+        public StoreView()
         {
         }
         public string PartitionKey { get; set; }
@@ -180,9 +180,9 @@ namespace WebService.Controllers
         public ETag ETag { get; set; } = default!;
         public DateTimeOffset? Timestamp { get; set; } = default!;
     }
-    public class Shop : ITableEntity
+    public class Store : ITableEntity
     {
-        public Shop()
+        public Store()
         {
         }
 
@@ -208,14 +208,14 @@ namespace WebService.Controllers
         public ETag ETag { get; set; } = default!;
         public DateTimeOffset? Timestamp { get; set; } = default!;
     }
-    public class ShopLanguage : ITableEntity
+    public class StoreLanguage : ITableEntity
     {
-        public ShopLanguage()
+        public StoreLanguage()
         {
         }
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
-        public string ShopRowKey { get; set; }
+        public string StoreRowKey { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string LanguageID { get; set; }
