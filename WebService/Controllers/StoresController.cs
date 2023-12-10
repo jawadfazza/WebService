@@ -123,7 +123,8 @@ namespace WebService.Controllers
                                 NumberOfRatings = a.NumberOfRatings,
                                 Tags = a.Tags,
                                 Longitude = a.Longitude,
-                                Latitude = a.Latitude
+                                Latitude = a.Latitude,
+                                GroupRowKey = a.GroupRowKey
                             }).OrderBy(x => x.Seq)
                             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -158,7 +159,9 @@ namespace WebService.Controllers
                                 NumberOfRatings = a.NumberOfRatings,
                                 Tags = a.Tags,
                                 Longitude = a.Longitude,
-                                Latitude = a.Latitude
+                                Latitude = a.Latitude,
+                                GroupRowKey=a.GroupRowKey
+                                
 
                             })
                 .OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)

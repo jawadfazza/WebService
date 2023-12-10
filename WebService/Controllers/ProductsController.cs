@@ -19,8 +19,8 @@ namespace WebService.Controllers
     {
         TableClient DataProducts;
         TableClient DataProductLanguages;
-        TableClient DataShops;
-        TableClient DataShopLanguages;
+        TableClient DataStores;
+        TableClient DataStoreLanguages;
         TableClient CodeGroups;
         TableClient CodeSubGroups;
         TableClient CodeGroupLanguages;
@@ -53,6 +53,12 @@ namespace WebService.Controllers
             );
             CodeSubGroupLanguages = tableServiceClient.GetTableClient(
                 tableName: "CodeSubGroupLanguages"
+             );
+            DataStores = tableServiceClient.GetTableClient(
+               tableName: "DataStores"
+           );
+            DataStoreLanguages = tableServiceClient.GetTableClient(
+                tableName: "DataStoreLanguages"
              );
 
             string guid = Guid.NewGuid().ToString();
