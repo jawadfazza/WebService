@@ -62,7 +62,7 @@ namespace WebService.Controllers
              );
 
             string guid = Guid.NewGuid().ToString();
-            var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
+            var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 16)];
             var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
 
             var subGroups = CodeSubGroups.Query<SubGroup>().Where(x => x.GroupRowKey == group.RowKey).ToList();

@@ -34,6 +34,7 @@ namespace WebService.Controllers
             tableClientLan = tableServiceClient.GetTableClient(
                tableName: "CodeGroupLanguages"
            );
+            
         }
 
        

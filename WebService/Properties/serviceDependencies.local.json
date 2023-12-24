@@ -1,13 +1,17 @@
 {
   "dependencies": {
-    "secrets1": {
-      "type": "secrets.user"
-    },
     "storage1": {
-      "secretStore": "LocalSecretsFile",
-      "resourceId": null,
-      "type": "storage.emulator",
+      "ignored": "true",
+      "type": "storage",
       "connectionId": "ConnectionStrings:CosmosDB"
+    },
+    "cosmosdb1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ServiceLinker/locations/eastus/connectors/CosmosDB_8A14F2F6BB",
+      "secretStore": null,
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.DocumentDB/databaseAccounts/portal-db",
+      "type": "cosmosdb.azure",
+      "connectionId": "CosmosDB",
+      "dynamicId": null
     }
   }
 }
