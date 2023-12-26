@@ -4,6 +4,10 @@
       "type": "cosmosdb",
       "connectionId": "CosmosDB",
       "dynamicId": null
+    },
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": null
     }
   }
 }

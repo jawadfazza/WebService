@@ -123,7 +123,8 @@ namespace WebService.Controllers
                 "Email Confirmation",
                 $"Dear {value.FullName},\n\nThank you for registering! Please click the following link to verify your email address:\n\n" +
                         $"https://portalapps.azurewebsites.net/Home/VerifyEmail?code={value.RowKey}"
-                );
+,
+            Mail.GetConfiguration());
 
             return value;
         }
