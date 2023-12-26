@@ -19,7 +19,7 @@ namespace WebService.Library
         }
         
 
-        public static void SendEmail(string emailTitle,string ToAddress,string FromAddress, string subject,string body, IConfiguration configuration)
+        public static void SendEmail(string emailTitle,string ToAddress,string FromAddress, string subject,string body)
         {
             var fromAddress = new MailAddress("e.jawadfazza@hotmail.com", emailTitle);
                 
