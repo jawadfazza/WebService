@@ -18,29 +18,34 @@ namespace WebService.Controllers
 {
     [Route("api/Accounts")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountsController : BaseController
     {
-        TableClient tableClient;
-        public AccountsController(IConfiguration configuration)
+
+
+        public AccountsController(IConfiguration configuration) : base(configuration)
         {
-
-            string tableName = "DataAccounts";
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-
-            tableServiceClient.CreateTableIfNotExists(tableName: tableName);
-            tableClient = tableServiceClient.GetTableClient(
-                tableName: tableName
-            );
-
         }
+
+        //public AccountsController(IConfiguration configuration)
+        //{
+
+        //    string tableName = "DataAccounts";
+        //    // New instance of the DataAccounts class
+        //    TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
+        //    // New instance of DataAccounts class referencing the server-side table
+
+        //    tableServiceClient.CreateTableIfNotExists(tableName: tableName);
+        //    DataAccounts = tableServiceClient.GetDataAccounts(
+        //        tableName: tableName
+        //    );
+
+        //}
 
         // GET: api/<AccountsController>
         [HttpGet, Route("/api/Accounts/LoadPartialData")]
         public IEnumerable<Accounts> LoadPartialData(int pageSize, int pageNumber)
         {
-            var Accounts = tableClient.Query<Accounts>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var Accounts = DataAccounts.Query<Accounts>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return Accounts;
@@ -49,7 +54,7 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Accounts/LoadPartialDataWithSearch")]
         public IEnumerable<Accounts> LoadPartialData(int pageSize, int pageNumber, string searchQuery)
         {
-            var Accounts = tableClient.Query<Accounts>().Where(x => x.FullName.Contains(searchQuery) || x.Email.Contains(searchQuery)).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var Accounts = DataAccounts.Query<Accounts>().Where(x => x.FullName.Contains(searchQuery) || x.Email.Contains(searchQuery)).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return Accounts;
@@ -61,7 +66,7 @@ namespace WebService.Controllers
         public IEnumerable<Accounts> LoadAllData()
         {
 
-            var Accounts = tableClient.Query<Accounts>().OrderBy(x => x.Seq).ToList();
+            var Accounts = DataAccounts.Query<Accounts>().OrderBy(x => x.Seq).ToList();
             return null;
         }
 
@@ -69,7 +74,7 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Accounts/GetByRowKey")]
         public Accounts Get(string RowKey)
         {
-            var Accounts = tableClient.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault();
+            var Accounts = DataAccounts.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault();
 
             return Accounts;
         }
@@ -78,7 +83,7 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Accounts/GetByEmail")]
         public Accounts GetByEmail(string emailAddress)
         {
-            var Accounts = tableClient.Query<Accounts>(x => x.Email == emailAddress).FirstOrDefault();
+            var Accounts = DataAccounts.Query<Accounts>(x => x.Email == emailAddress).FirstOrDefault();
 
             return Accounts;
         }
@@ -88,7 +93,7 @@ namespace WebService.Controllers
         public Accounts Create([FromBody] Accounts value)
         {
             value.RowKey = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Accounts>(new Accounts()
+            DataAccounts.AddEntity<Accounts>(new Accounts()
             {
                 Seq = 2,
                 PartitionKey = "1",
@@ -129,7 +134,7 @@ namespace WebService.Controllers
         public async Task UpdateAsync([FromBody] Accounts value)
         {
             // Retrieve the entity you want to update
-            Accounts entity = tableClient.GetEntity<Accounts>(value.PartitionKey, value.RowKey);
+            Accounts entity = DataAccounts.GetEntity<Accounts>(value.PartitionKey, value.RowKey);
 
             entity.FullName = value.FullName;
             entity.PhoneNumber = value.PhoneNumber;
@@ -137,29 +142,29 @@ namespace WebService.Controllers
             entity.PreferdLanguage = value.PreferdLanguage;
 
             // Update the entity in the table
-            tableClient.UpdateEntity<Accounts>(entity, entity.ETag);
+            DataAccounts.UpdateEntity<Accounts>(entity, entity.ETag);
         }
 
         // DELETE api/<AccountsController>/5
         [HttpDelete("{RowKey}"), Route("/api/Accounts/delete/{RowKey}")]
         public void Delete(string RowKey)
         {
-            var Accounts = tableClient.DeleteEntityAsync("1", RowKey);
+            var Accounts = DataAccounts.DeleteEntityAsync("1", RowKey);
         }
 
         public void VerifyEmail(string RowKey)
         {
             // Retrieve the entity you want to update
-            var entity = tableClient.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault(); ;
+            var entity = DataAccounts.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault(); ;
             entity.AccountConfirmed = true;
             // Update the entity in the table
-            tableClient.UpdateEntity<Accounts>(entity, entity.ETag);
+            DataAccounts.UpdateEntity<Accounts>(entity, entity.ETag);
         }
 
         [HttpPost, Route("/api/Accounts/Login")]
         public Accounts Login([FromBody] Accounts value)
         {
-            var Accounts = tableClient.Query<Accounts>(x => x.Email==value.Email && x.Password==value.Password).FirstOrDefault();
+            var Accounts = DataAccounts.Query<Accounts>(x => x.Email==value.Email && x.Password==value.Password).FirstOrDefault();
             if (Accounts != null)
             {
                 return Accounts;

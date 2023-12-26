@@ -15,49 +15,52 @@ namespace WebService.Controllers
 {
     [Route("api/SubGroups")]
     [ApiController]
-    public class SubGroupsController : ControllerBase
+    public class SubGroupsController : BaseController
     {
-        TableClient CodeSubGroups;
-        TableClient CodeSubGroupLanguages;
-        public SubGroupsController(IConfiguration configuration)
+        public SubGroupsController(IConfiguration configuration) : base(configuration)
         {
-         
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-            tableServiceClient.CreateTableIfNotExists(tableName: "CodeSubGroups");
-            tableServiceClient.CreateTableIfNotExists(tableName: "CodeSubGroupLanguages");
-            CodeSubGroups = tableServiceClient.GetTableClient(
-                tableName: "CodeSubGroups"
-            );
-            CodeSubGroupLanguages = tableServiceClient.GetTableClient(
-               tableName: "CodeSubGroupLanguages"
-           );
-
-            //CreateSubGroupElectronics();
-            //CreateSubGroupAutomotive();
-            //CreateSubGroupBabyKids();
-            //CreateSubGroupBeautyPersonalCare();
-            //CreateSubGroupClothing();
-            //CreateSubGroupElectronics();
-            //CreateSubGroupFitnessExercise();
-            //CreateSubGroupFoodBeverages();
-            //CreateSubGroupFurniture();
-            //CreateSubGroupGardenOutdoor();
-            //CreateSubGroupHealthWellness();
-            //CreateSubGroupHomeDecor();
-            //CreateSubGroupJewelryAccessories();
-            //CreateSubGroupOfficeSupplies();
-            //CreateSubGroupomeAppliance();
-            //CreateSubGroupSportsOutdoor();
-            //CreateSubGroupToysGames();
-            //CreateSubGroupTravelLuggage();
-            
         }
 
-       
+        //public SubGroupsController(IConfiguration configuration)
+        //{
+
+        //    // New instance of the TableClient class
+        //    TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
+        //    // New instance of TableClient class referencing the server-side table
+        //    tableServiceClient.CreateTableIfNotExists(tableName: "CodeSubGroups");
+        //    tableServiceClient.CreateTableIfNotExists(tableName: "CodeSubGroupLanguages");
+        //    CodeSubGroups = tableServiceClient.GetTableClient(
+        //        tableName: "CodeSubGroups"
+        //    );
+        //    CodeSubGroupLanguages = tableServiceClient.GetTableClient(
+        //       tableName: "CodeSubGroupLanguages"
+        //   );
+
+        //    //CreateSubGroupElectronics();
+        //    //CreateSubGroupAutomotive();
+        //    //CreateSubGroupBabyKids();
+        //    //CreateSubGroupBeautyPersonalCare();
+        //    //CreateSubGroupClothing();
+        //    //CreateSubGroupElectronics();
+        //    //CreateSubGroupFitnessExercise();
+        //    //CreateSubGroupFoodBeverages();
+        //    //CreateSubGroupFurniture();
+        //    //CreateSubGroupGardenOutdoor();
+        //    //CreateSubGroupHealthWellness();
+        //    //CreateSubGroupHomeDecor();
+        //    //CreateSubGroupJewelryAccessories();
+        //    //CreateSubGroupOfficeSupplies();
+        //    //CreateSubGroupomeAppliance();
+        //    //CreateSubGroupSportsOutdoor();
+        //    //CreateSubGroupToysGames();
+        //    //CreateSubGroupTravelLuggage();
+
+        //}
+
+
 
         // GET: api/<SubGroupsController>
+
         [HttpGet, Route("/api/SubGroups/LoadPartialData")]
         public IEnumerable<SubGroupView> LoadPartialData(int pageSize, int pageNumber,string Lan)
         {
