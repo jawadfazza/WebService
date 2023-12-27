@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -20,11 +21,12 @@ namespace WebService.Controllers
     [ApiController]
     public class AccountsController : BaseController
     {
-
-
         public AccountsController(IConfiguration configuration) : base(configuration)
         {
         }
+
+
+
 
         //public AccountsController(IConfiguration configuration)
         //{
@@ -130,15 +132,18 @@ namespace WebService.Controllers
 
         // PUT api/<AccountsController>/5
         [HttpPost, Route("/api/Accounts/Update")]
-        public async Task UpdateAsync([FromBody] Accounts value)
+        public void Update([FromBody] Accounts value)
         {
             // Retrieve the entity you want to update
             Accounts entity = DataAccounts.GetEntity<Accounts>(value.PartitionKey, value.RowKey);
 
-            entity.FullName = value.FullName;
-            entity.PhoneNumber = value.PhoneNumber;
-            entity.Gender = value.Gender;
-            entity.PreferdLanguage = value.PreferdLanguage;
+
+            //_mapper.Map(value, entity);
+
+            //entity.FullName = value.FullName;
+            //entity.PhoneNumber = value.PhoneNumber;
+            //entity.Gender = value.Gender;
+            //entity.PreferdLanguage = value.PreferdLanguage;
 
             // Update the entity in the table
             DataAccounts.UpdateEntity<Accounts>(entity, entity.ETag);

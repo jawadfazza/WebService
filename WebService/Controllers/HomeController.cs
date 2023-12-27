@@ -36,8 +36,8 @@ namespace WebService.Controllers
         {
             // Your verification logic here...
   
-            AccountsController accountsController = new AccountsController(_configuration);
-            accountsController.VerifyEmail(code);
+           // AccountsController accountsController = new AccountsController(_configuration);
+           // accountsController.VerifyEmail(code);
             // Assuming verification is successful, redirect to the Confirmation page
             return View();
         }

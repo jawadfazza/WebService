@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,29 +19,17 @@ namespace WebService.Controllers
 {
     [Route("api/AccountLocations")]
     [ApiController]
-    public class AccountLocationsController : ControllerBase
+    public class AccountLocationsController : BaseController
     {
-        TableClient tableClient;
-        public AccountLocationsController(IConfiguration configuration)
+        public AccountLocationsController(IConfiguration configuration) : base(configuration)
         {
-
-            string tableName = "DataAccountLocations";
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-
-            tableServiceClient.CreateTableIfNotExists(tableName: tableName);
-            tableClient = tableServiceClient.GetTableClient(
-                tableName: tableName
-            );
-
         }
 
         // GET: api/<AccountLocationsController>
         [HttpGet, Route("/api/AccountLocations/LoadPartialData")]
         public IEnumerable<AccountLocations> LoadPartialData(int pageSize, int pageNumber)
         {
-            var AccountLocations = tableClient.Query<AccountLocations>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var AccountLocations = DataAccountLocations.Query<AccountLocations>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return AccountLocations;
@@ -49,7 +38,7 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/AccountLocations/LoadPartialDataWithSearch")]
         public IEnumerable<AccountLocations> LoadPartialData(int pageSize, int pageNumber, string searchQuery)
         {
-            var AccountLocations = tableClient.Query<AccountLocations>().Where(x => x.Area.Contains(searchQuery) || x.MoreDetails.Contains(searchQuery)).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var AccountLocations = DataAccountLocations.Query<AccountLocations>().Where(x => x.Area.Contains(searchQuery) || x.MoreDetails.Contains(searchQuery)).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return AccountLocations;
@@ -61,7 +50,7 @@ namespace WebService.Controllers
         public IEnumerable<AccountLocations> LoadAllData()
         {
 
-            var AccountLocations = tableClient.Query<AccountLocations>().OrderBy(x => x.Seq).ToList();
+            var AccountLocations = DataAccountLocations.Query<AccountLocations>().OrderBy(x => x.Seq).ToList();
             return null;
         }
 
@@ -69,7 +58,7 @@ namespace WebService.Controllers
         [HttpGet("{id}")]
         public AccountLocations Get(string RowKey)
         {
-            var AccountLocations = tableClient.Query<AccountLocations>(x => x.RowKey == RowKey).FirstOrDefault();
+            var AccountLocations = DataAccountLocations.Query<AccountLocations>(x => x.RowKey == RowKey).FirstOrDefault();
 
             return AccountLocations;
         }
@@ -79,7 +68,7 @@ namespace WebService.Controllers
         public AccountLocations Create([FromBody] AccountLocations value)
         {
             value.RowKey = Guid.NewGuid().ToString();
-            tableClient.AddEntity<AccountLocations>(new AccountLocations()
+            DataAccountLocations.AddEntity<AccountLocations>(new AccountLocations()
             {
                 Seq = 2,
                 PartitionKey = "1",
@@ -99,19 +88,19 @@ namespace WebService.Controllers
         public async Task UpdateAsync([FromBody] AccountLocations value)
         {
             // Retrieve the entity you want to update
-            AccountLocations entity = await tableClient.GetEntityAsync<AccountLocations>(value.PartitionKey, value.RowKey);
+            AccountLocations entity = await DataAccountLocations.GetEntityAsync<AccountLocations>(value.PartitionKey, value.RowKey);
 
             entity.AddressName = value.AddressName;
         
             // Update the entity in the table
-            await tableClient.UpdateEntityAsync<AccountLocations>(entity, entity.ETag);
+            await DataAccountLocations.UpdateEntityAsync<AccountLocations>(entity, entity.ETag);
         }
 
         // DELETE api/<AccountLocationsController>/5
         [HttpDelete("{RowKey}"), Route("/api/AccountLocations/delete/{RowKey}")]
         public void Delete(string RowKey)
         {
-            var AccountLocations = tableClient.DeleteEntityAsync("1", RowKey);
+            var AccountLocations = DataAccountLocations.DeleteEntityAsync("1", RowKey);
         }
 
 
