@@ -68,13 +68,16 @@ namespace WebService.Controllers
             var subGroups = CodeSubGroups.Query<SubGroup>().Where(x => x.GroupRowKey == group.RowKey).ToList();
             var subGroup = subGroups[new Random().Next(0, subGroups.Count - 1)];
             var subGroupLan = CodeSubGroupLanguages.Query<SubGroupLanguage>().Where(x => x.SubGroupRowKey == subGroup.RowKey).ToList();
+            var stores = DataStores.Query<Store>().Where(x => x.GroupRowKey == group.RowKey).ToList();
+            var store = stores[new Random().Next(0, stores.Count-1)];
+
             DataProducts.AddEntity<Product>(new Product()
             {
                 PartitionKey = "1",
                 RowKey = guid,
                 GroupRowKey = group.RowKey,
                 SubGroupRowKey = subGroup.RowKey,
-                StoreRowKey = Guid.NewGuid().ToString(),
+                StoreRowKey = store.RowKey,
                 Seq = 1,
                 ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
                 Price = new Random().Next(1, 1000),
