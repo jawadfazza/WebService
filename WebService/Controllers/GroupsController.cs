@@ -16,35 +16,22 @@ namespace WebService.Controllers
 
     [Route("api/Groups")]
     [ApiController]
-    public class GroupsController : ControllerBase
+    public class GroupsController : BaseController
     {
-        TableClient tableClient;
-        TableClient tableClientLan;
-        public GroupsController(IConfiguration configuration)
+        public GroupsController(IConfiguration configuration) : base(configuration)
         {
-         
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-            tableServiceClient.CreateTableIfNotExists(tableName: "CodeGroups");
-            tableServiceClient.CreateTableIfNotExists(tableName: "CodeGroupLanguages");
-            tableClient = tableServiceClient.GetTableClient(
-                tableName: "CodeGroups"
-            );
-            tableClientLan = tableServiceClient.GetTableClient(
-               tableName: "CodeGroupLanguages"
-           );
         }
 
-       
+
+
 
         // GET: api/<GroupsController>
         [HttpGet, Route("/api/Groups/LoadPartialData")]
         public IEnumerable<GroupView> LoadPartialData(int pageSize, int pageNumber,string Lan)
         {
 
-            var Groups = (from a in tableClient.Query<Group>().Where(x =>  x.Active)
-                            join b in tableClientLan.Query<GroupLanguage>().Where(x => x.LanguageID == Lan &&x.Active) on a.RowKey equals b.GroupRowKey select new
+            var Groups = (from a in CodeGroups.Query<Group>().Where(x =>  x.Active)
+                            join b in CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.LanguageID == Lan &&x.Active) on a.RowKey equals b.GroupRowKey select new
                              GroupView {
                                 RowKey = a.RowKey,
                                 Description = b.Description,
@@ -64,8 +51,8 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Groups/LoadPartialDataWithSearch")]
         public IEnumerable<GroupView> LoadPartialData(int pageSize, int pageNumber,string searchQuery, string Lan)
         {
-            var Groups = (from a in tableClient.Query<Group>().Where(x => x.Active)
-                            join b in tableClientLan.Query<GroupLanguage>().Where(x => x.LanguageID == Lan && x.Active)
+            var Groups = (from a in CodeGroups.Query<Group>().Where(x => x.Active)
+                            join b in CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.LanguageID == Lan && x.Active)
                             .Where(x => x.Name.Contains(searchQuery) || x.Description.Contains(searchQuery)) on a.RowKey equals b.GroupRowKey
                             select new
                             GroupView
@@ -90,8 +77,8 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Groups/LoadAllData")]
         public IEnumerable<GroupView> LoadAllData(string Lan)
         {
-            var Groups = (from a in tableClient.Query<Group>().Where(x => x.Active)
-                          join b in tableClientLan.Query<GroupLanguage>().Where(x => x.LanguageID == Lan && x.Active)
+            var Groups = (from a in CodeGroups.Query<Group>().Where(x => x.Active)
+                          join b in CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.LanguageID == Lan && x.Active)
                            on a.RowKey equals b.GroupRowKey
                           select new
                           GroupView
@@ -113,7 +100,7 @@ namespace WebService.Controllers
         [HttpGet("{id}")]
         public Group Get(string RowKey)
         {
-            var Group = tableClient.Query<Group>(x=>x.RowKey==RowKey).FirstOrDefault();
+            var Group = CodeGroups.Query<Group>(x=>x.RowKey==RowKey).FirstOrDefault();
 
             return Group;
         }
@@ -123,7 +110,7 @@ namespace WebService.Controllers
         public void Create([FromBody] Group value)
         {
            
-            tableClient.AddEntityAsync<Group>(value);
+            CodeGroups.AddEntityAsync<Group>(value);
            
         }
 
@@ -133,26 +120,26 @@ namespace WebService.Controllers
         public async Task UpdateAsync([FromBody] GroupLanguage value)
         {
             // Retrieve the entity you want to update
-            GroupLanguage entity = await tableClient.GetEntityAsync<GroupLanguage>(value.PartitionKey, value.RowKey);
+            GroupLanguage entity = await CodeGroups.GetEntityAsync<GroupLanguage>(value.PartitionKey, value.RowKey);
 
             entity.Name = value.Name;
 
             // Update the entity in the table
-            await tableClient.UpdateEntityAsync<GroupLanguage>(entity, entity.ETag);
+            await CodeGroups.UpdateEntityAsync<GroupLanguage>(entity, entity.ETag);
         }
 
         // DELETE api/<GroupsController>/5
         [HttpDelete("{RowKey}"),Route("/api/Groups/delete/{RowKey}")]
         public void Delete(string RowKey)
         {
-            var Groups = tableClient.DeleteEntityAsync("1",RowKey);
+            var Groups = CodeGroups.DeleteEntityAsync("1",RowKey);
         }
 
         private void CreateGroup1()
         {
             // Electronics
             string electronicsGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 1,
                 PartitionKey = "1",
@@ -161,7 +148,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -172,7 +159,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -186,7 +173,7 @@ namespace WebService.Controllers
 
             // Clothing
             string clothingGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 2,
                 PartitionKey = "1",
@@ -195,7 +182,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -206,7 +193,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -220,7 +207,7 @@ namespace WebService.Controllers
 
             // Books
             string booksGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 3,
                 PartitionKey = "1",
@@ -229,7 +216,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -240,7 +227,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -254,7 +241,7 @@ namespace WebService.Controllers
 
             // Home Appliances
             string homeAppliancesGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 4,
                 PartitionKey = "1",
@@ -263,7 +250,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -274,7 +261,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -288,7 +275,7 @@ namespace WebService.Controllers
 
             // Sports & Outdoors
             string sportsOutdoorsGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 5,
                 PartitionKey = "1",
@@ -297,7 +284,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -308,7 +295,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -322,7 +309,7 @@ namespace WebService.Controllers
 
             // Beauty & Personal Care
             string beautyPersonalCareGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 6,
                 PartitionKey = "1",
@@ -331,7 +318,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -342,7 +329,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -357,7 +344,7 @@ namespace WebService.Controllers
 
             // Furniture
             string furnitureGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 7,
                 PartitionKey = "1",
@@ -366,7 +353,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -377,7 +364,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -391,7 +378,7 @@ namespace WebService.Controllers
 
             // Toys & Games
             string toysGamesGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 8,
                 PartitionKey = "1",
@@ -400,7 +387,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -411,7 +398,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -425,7 +412,7 @@ namespace WebService.Controllers
 
             // Food & Beverages
             string foodBeveragesGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 9,
                 PartitionKey = "1",
@@ -434,7 +421,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -445,7 +432,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -460,7 +447,7 @@ namespace WebService.Controllers
             // Continue adding the rest of the product code groups in a similar fashion.
             // Health & Wellness
             string healthWellnessGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 10,
                 PartitionKey = "1",
@@ -469,7 +456,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -480,7 +467,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -494,7 +481,7 @@ namespace WebService.Controllers
 
             // Automotive
             string automotiveGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 11,
                 PartitionKey = "1",
@@ -503,7 +490,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -514,7 +501,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -528,7 +515,7 @@ namespace WebService.Controllers
 
             // Office Supplies
             string officeSuppliesGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 12,
                 PartitionKey = "1",
@@ -537,7 +524,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -548,7 +535,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -562,7 +549,7 @@ namespace WebService.Controllers
 
             // Home Decor
             string homeDecorGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 13,
                 PartitionKey = "1",
@@ -571,7 +558,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -582,7 +569,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -596,7 +583,7 @@ namespace WebService.Controllers
 
             // Garden & Outdoor
             string gardenOutdoorGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 14,
                 PartitionKey = "1",
@@ -605,7 +592,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -616,7 +603,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -630,7 +617,7 @@ namespace WebService.Controllers
 
             // Jewelry & Accessories
             string jewelryAccessoriesGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 15,
                 PartitionKey = "1",
@@ -639,7 +626,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -650,7 +637,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -664,7 +651,7 @@ namespace WebService.Controllers
 
             // Baby & Kids
             string babyKidsGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 16,
                 PartitionKey = "1",
@@ -673,7 +660,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -684,7 +671,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -698,7 +685,7 @@ namespace WebService.Controllers
 
             // Travel & Luggage
             string travelLuggageGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 17,
                 PartitionKey = "1",
@@ -707,7 +694,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -718,7 +705,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -732,7 +719,7 @@ namespace WebService.Controllers
 
             // Fitness & Exercise
             string fitnessExerciseGuid = Guid.NewGuid().ToString();
-            tableClient.AddEntity<Group>(new Group()
+            CodeGroups.AddEntity<Group>(new Group()
             {
                 Seq = 18,
                 PartitionKey = "1",
@@ -741,7 +728,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),
@@ -752,7 +739,7 @@ namespace WebService.Controllers
                 Active = true,
                 Timestamp = DateTime.Now
             });
-            tableClientLan.AddEntity<GroupLanguage>(new GroupLanguage()
+            CodeGroupLanguages.AddEntity<GroupLanguage>(new GroupLanguage()
             {
                 PartitionKey = "1",
                 RowKey = Guid.NewGuid().ToString(),

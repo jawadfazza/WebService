@@ -10,38 +10,37 @@ namespace WebService.Controllers
     [ApiController]
     public class ImageUploadController : ControllerBase
     {
-
-     
-            private const string UploadDirectory = "Uploads"; // Directory to store uploaded images
+        private const string UploadDirectory = "Uploads"; // Directory to store uploaded images
 
             [HttpPost]
-            public async Task<IActionResult> UploadImage()
+        [HttpPost, Route("/api/ImageUpload/UploadImage")]
+        public async Task<IActionResult> UploadImage()
+        {
+            try
             {
-                try
+                if (Request.Form.Files!=null)
                 {
-                    if (Request.Form.Files!=null)
+                    var file = Request.Form.Files[0]; // Assuming only one file is uploaded
+
+                    if (file.Length > 0)
                     {
-                        var file = Request.Form.Files[0]; // Assuming only one file is uploaded
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), UploadDirectory, file.FileName);
 
-                        if (file.Length > 0)
+                        using (var stream = new FileStream(filePath, FileMode.Create))
                         {
-                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), UploadDirectory, file.FileName);
-
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
-
-                            return Ok("Image uploaded successfully.");
+                            await file.CopyToAsync(stream);
                         }
-                    }
 
-                    return BadRequest("No image uploaded.");
+                        return Ok("Image uploaded successfully.");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal server error: {ex}");
-                }
+
+                return BadRequest("No image uploaded.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
             }
         }
+    }
 }

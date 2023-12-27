@@ -12,90 +12,73 @@ namespace WebService.Controllers
     [Route("api/Stores")]
     [ApiController]
 
-    public class StoresController : ControllerBase
+    public class StoresController : BaseController
     {
-        TableClient DataStores;
-        TableClient DataStoreLanguages;
-        TableClient CodeGroups;
-        TableClient CodeGroupLanguages;
-        public StoresController(IConfiguration configuration)
+        public StoresController(IConfiguration configuration) : base(configuration)
         {
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataStores");
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataStoreLanguages");
-
-            DataStores = tableServiceClient.GetTableClient(
-                tableName: "DataStores"
-            );
-            DataStoreLanguages = tableServiceClient.GetTableClient(
-               tableName: "DataStoreLanguages"
-            );
-            CodeGroups = tableServiceClient.GetTableClient(
-               tableName: "CodeGroups"
-            );
-            CodeGroupLanguages = tableServiceClient.GetTableClient(
-              tableName: "CodeGroupLanguages"
-            );
-
-
-            string guid = Guid.NewGuid().ToString();
-            var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
-            var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
-
-            DataStores.AddEntity<Store>(new Store()
-            {
-                PartitionKey = "1",
-                RowKey = guid,
-                GroupRowKey = group.RowKey,
-                Seq = 1,
-                ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
-                OpeningHours= new Random().Next(5, 12),
-                ClosingHours = new Random().Next(18, 24),
-                ContactNumber= "05984465465",
-                Email="email@company.com",
-                Location="Damascues",
-                NumberOfRatings= new Random().Next(1,1000),
-                Rating= new Random().Next(1, 5),
-                Website="",
-                Tags = {},
-                Longitude=0,
-                Latitude=0,
-                
-                Active = true,
-                Timestamp = DateTime.Now
-            }) ;
-            string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name  + " " + new Random().Next(1, 1000);
-            DataStoreLanguages.AddEntity<StoreLanguage>(new StoreLanguage()
-            {
-                PartitionKey = "1",
-                RowKey = Guid.NewGuid().ToString(),
-                StoreRowKey = guid,
-                Name = groupNameEN,
-                Description = groupNameEN,
-                
-                LanguageID = "EN",
-                Active = true,
-                Timestamp = DateTime.Now
-                
-            });
-            string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + new Random().Next(1, 1000);
-
-            DataStoreLanguages.AddEntity<StoreLanguage>(new StoreLanguage()
-            {
-                PartitionKey = "1",
-                RowKey = Guid.NewGuid().ToString(),
-                StoreRowKey = guid,
-                Name = groupNameAR,
-                Description = groupNameAR,
-                LanguageID = "AR",
-                Active = true,
-                Timestamp = DateTime.Now
-            }); ;
         }
+
+        //public StoresController(IConfiguration configuration)
+        //{
+
+
+
+        //    string guid = Guid.NewGuid().ToString();
+        //    var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
+        //    var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
+
+        //    DataStores.AddEntity<Store>(new Store()
+        //    {
+        //        PartitionKey = "1",
+        //        RowKey = guid,
+        //        GroupRowKey = group.RowKey,
+        //        Seq = 1,
+        //        ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
+        //        OpeningHours= new Random().Next(5, 12),
+        //        ClosingHours = new Random().Next(18, 24),
+        //        ContactNumber= "05984465465",
+        //        Email="email@company.com",
+        //        Location="Damascues",
+        //        NumberOfRatings= new Random().Next(1,1000),
+        //        Rating= new Random().Next(1, 5),
+        //        Website="",
+        //        Tags = {},
+        //        Longitude=0,
+        //        Latitude=0,
+
+        //        Active = true,
+        //        Timestamp = DateTime.Now
+        //    }) ;
+        //    string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name  + " " + new Random().Next(1, 1000);
+        //    DataStoreLanguages.AddEntity<StoreLanguage>(new StoreLanguage()
+        //    {
+        //        PartitionKey = "1",
+        //        RowKey = Guid.NewGuid().ToString(),
+        //        StoreRowKey = guid,
+        //        Name = groupNameEN,
+        //        Description = groupNameEN,
+
+        //        LanguageID = "EN",
+        //        Active = true,
+        //        Timestamp = DateTime.Now
+
+        //    });
+        //    string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + new Random().Next(1, 1000);
+
+        //    DataStoreLanguages.AddEntity<StoreLanguage>(new StoreLanguage()
+        //    {
+        //        PartitionKey = "1",
+        //        RowKey = Guid.NewGuid().ToString(),
+        //        StoreRowKey = guid,
+        //        Name = groupNameAR,
+        //        Description = groupNameAR,
+        //        LanguageID = "AR",
+        //        Active = true,
+        //        Timestamp = DateTime.Now
+        //    }); ;
+        //}
         // GET: api/<StoresController>
+
         [HttpGet, Route("/api/Stores/LoadPartialData")]
         public IEnumerable<StoreView> LoadPartialData(int pageSize, int pageNumber, string Lan, string groupOptions)
         {

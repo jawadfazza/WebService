@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -7,12 +9,20 @@ using System.Threading.Tasks;
 
 namespace WebService.Library
 {
-    public class Mail
+    public class Mail 
     {
+        IConfiguration configuration;
+        static string fromPassword="";
+        public Mail(IConfiguration configuration)
+        {
+              fromPassword = configuration.GetConnectionString("HotmailPasword");
+        }
+        
+
         public static void SendEmail(string emailTitle,string ToAddress,string FromAddress, string subject,string body)
         {
             var fromAddress = new MailAddress("e.jawadfazza@hotmail.com", emailTitle);
-            const string fromPassword = "Visual@12345";
+                
 
 
             var toAddress = new MailAddress(ToAddress);

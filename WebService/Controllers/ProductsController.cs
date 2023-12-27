@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using AutoMapper;
+using Azure;
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,112 +16,74 @@ namespace WebService.Controllers
 {
     [Route("api/Products")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductsController : BaseController
     {
-        TableClient DataProducts;
-        TableClient DataProductLanguages;
-        TableClient DataStores;
-        TableClient DataStoreLanguages;
-        TableClient CodeGroups;
-        TableClient CodeSubGroups;
-        TableClient CodeGroupLanguages;
-        TableClient CodeSubGroupLanguages;
-
-        public ProductsController(IConfiguration configuration)
+        public ProductsController(IConfiguration configuration) : base(configuration)
         {
-
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataProducts");
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataProductLanguages");
-
-            DataProducts = tableServiceClient.GetTableClient(
-                tableName: "DataProducts"
-            );
-            DataProductLanguages = tableServiceClient.GetTableClient(
-               tableName: "DataProductLanguages"
-            );
-            CodeGroups = tableServiceClient.GetTableClient(
-               tableName: "CodeGroups"
-            );
-            CodeGroupLanguages = tableServiceClient.GetTableClient(
-              tableName: "CodeGroupLanguages"
-            );
-            CodeSubGroups = tableServiceClient.GetTableClient(
-                tableName: "CodeSubGroups"
-            );
-            CodeSubGroupLanguages = tableServiceClient.GetTableClient(
-                tableName: "CodeSubGroupLanguages"
-             );
-            DataStores = tableServiceClient.GetTableClient(
-               tableName: "DataStores"
-           );
-            DataStoreLanguages = tableServiceClient.GetTableClient(
-                tableName: "DataStoreLanguages"
-             );
-
-            string guid = Guid.NewGuid().ToString();
-            var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 17)];
-            var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
-
-            var subGroups = CodeSubGroups.Query<SubGroup>().Where(x => x.GroupRowKey == group.RowKey).ToList();
-            var subGroup = subGroups[new Random().Next(0, subGroups.Count - 1)];
-            var subGroupLan = CodeSubGroupLanguages.Query<SubGroupLanguage>().Where(x => x.SubGroupRowKey == subGroup.RowKey).ToList();
-            var stores = DataStores.Query<Store>().Where(x => x.GroupRowKey == group.RowKey).ToList();
-            var store = stores[new Random().Next(0, stores.Count-1)];
-
-            DataProducts.AddEntity<Product>(new Product()
-            {
-                PartitionKey = "1",
-                RowKey = guid,
-                GroupRowKey = group.RowKey,
-                SubGroupRowKey = subGroup.RowKey,
-                StoreRowKey = store.RowKey,
-                Seq = 1,
-                ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
-                Price = new Random().Next(1, 1000),
-                ProductQuantity = new Random().Next(1, 100),
-                ProductAvailability = true,
-                ProductRating = 3.5,
-                ProductReviews = "I bought this product a week ago and it's been amazing! The quality is top-notch, and it works exactly as described. I highly recommend it to others." +
-                "Please note that the actual content of ProductReviews will vary depending on the individual experiences and feedback from customers who have used the specific product",
-                ProductBrand = "XYZ Electronics",
-                ProductWeight = new Random().NextDouble(),
-                ProductDimensions = "10 x 5 x 2 inches",
-                Active = true,
-                Timestamp = DateTime.Now
-            });
-            string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
-            DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
-            {
-                PartitionKey = "1",
-                RowKey = Guid.NewGuid().ToString(),
-                ProductRowKey = guid,
-                Name = groupNameEN,
-                Description = groupNameEN,
-                ProductSpecifications = "Display: 6.7-inch Super AMOLED, Resolution: 1080 x 2400 pixels, Processor: Octa-core Snapdragon 765G, RAM: 6GB, Storage: 128GB, Rear Camera: 64MP + 12MP + 5MP + 5MP, Front Camera: 32MP, Battery: 4500mAh, Operating System: Android 11, Connectivity: 5G, Wi-Fi, Bluetooth, NFC, Sensors: Fingerprint (under display), accelerometer, gyro, proximity, compass, Color Options: Black, Blue, White.",
-
-                LanguageID = "EN",
-                Active = true,
-                Timestamp = DateTime.Now
-            });
-            string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
-
-            DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
-            {
-                PartitionKey = "1",
-                RowKey = Guid.NewGuid().ToString(),
-                ProductRowKey = guid,
-                Name = groupNameAR,
-                Description = groupNameAR,
-                ProductSpecifications = "الشاشة: Super AMOLED مقاس 6.7 بوصة ، الدقة: 1080 × 2400 بكسل ، المعالج: ثماني النواة Snapdragon 765G ، ذاكرة الوصول العشوائي: 6 جيجابايت ، التخزين: 128 جيجابايت ، الكاميرا الخلفية: 64 ميجابكسل + 12 ميجابكسل + 5 ميجابكسل + 5 ميجابكسل ، الكاميرا الأمامية: 32 ميجابكسل ، البطارية: 4500 مللي أمبير ، نظام التشغيل: Android 11 ، الاتصال: 5G ، Wi-Fi ، Bluetooth ، NFC ، مستشعرات: ، أبيض.",
-                LanguageID = "AR",
-                Active = true,
-                Timestamp = DateTime.Now
-            }); ;
         }
+
+
+        // public ProductsController()
+        // {
+
+
+        //string guid = Guid.NewGuid().ToString();
+        //var group = CodeGroups.Query<Group>().ToList()[new Random().Next(0, 16)];
+        //var groupLan = CodeGroupLanguages.Query<GroupLanguage>().Where(x => x.GroupRowKey == group.RowKey).ToList();
+
+        //var subGroups = CodeSubGroups.Query<SubGroup>().Where(x => x.GroupRowKey == group.RowKey).ToList();
+        //var subGroup = subGroups[new Random().Next(0, subGroups.Count - 1)];
+        //var subGroupLan = CodeSubGroupLanguages.Query<SubGroupLanguage>().Where(x => x.SubGroupRowKey == subGroup.RowKey).ToList();
+        //DataProducts.AddEntity<Product>(new Product()
+        //{
+        //    PartitionKey = "1",
+        //    RowKey = guid,
+        //    GroupRowKey = group.RowKey,
+        //    SubGroupRowKey = subGroup.RowKey,
+        //    StoreRowKey = Guid.NewGuid().ToString(),
+        //    Seq = 1,
+        //    ImageURL = "https://portalapps.azurewebsites.net/img/download.png",
+        //    Price = new Random().Next(1, 1000),
+        //    ProductQuantity = new Random().Next(1, 100),
+        //    ProductAvailability = true,
+        //    ProductRating = 3.5,
+        //    ProductReviews = "I bought this product a week ago and it's been amazing! The quality is top-notch, and it works exactly as described. I highly recommend it to others." +
+        //    "Please note that the actual content of ProductReviews will vary depending on the individual experiences and feedback from customers who have used the specific product",
+        //    ProductBrand = "XYZ Electronics",
+        //    ProductWeight = new Random().NextDouble(),
+        //    ProductDimensions = "10 x 5 x 2 inches",
+        //    Active = true,
+        //    Timestamp = DateTime.Now
+        //});
+        //string groupNameEN = groupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "EN").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
+        //DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
+        //{
+        //    PartitionKey = "1",
+        //    RowKey = Guid.NewGuid().ToString(),
+        //    ProductRowKey = guid,
+        //    Name = groupNameEN,
+        //    Description = groupNameEN,
+        //    ProductSpecifications = "Display: 6.7-inch Super AMOLED, Resolution: 1080 x 2400 pixels, Processor: Octa-core Snapdragon 765G, RAM: 6GB, Storage: 128GB, Rear Camera: 64MP + 12MP + 5MP + 5MP, Front Camera: 32MP, Battery: 4500mAh, Operating System: Android 11, Connectivity: 5G, Wi-Fi, Bluetooth, NFC, Sensors: Fingerprint (under display), accelerometer, gyro, proximity, compass, Color Options: Black, Blue, White.",
+
+        //    LanguageID = "EN",
+        //    Active = true,
+        //    Timestamp = DateTime.Now
+        //});
+        //string groupNameAR = groupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + subGroupLan.Where(x => x.LanguageID == "AR").FirstOrDefault().Name + " " + new Random().Next(1, 1000);
+
+        //DataProductLanguages.AddEntity<ProductLanguage>(new ProductLanguage()
+        //{
+        //    PartitionKey = "1",
+        //    RowKey = Guid.NewGuid().ToString(),
+        //    ProductRowKey = guid,
+        //    Name = groupNameAR,
+        //    Description = groupNameAR,
+        //    ProductSpecifications = "الشاشة: Super AMOLED مقاس 6.7 بوصة ، الدقة: 1080 × 2400 بكسل ، المعالج: ثماني النواة Snapdragon 765G ، ذاكرة الوصول العشوائي: 6 جيجابايت ، التخزين: 128 جيجابايت ، الكاميرا الخلفية: 64 ميجابكسل + 12 ميجابكسل + 5 ميجابكسل + 5 ميجابكسل ، الكاميرا الأمامية: 32 ميجابكسل ، البطارية: 4500 مللي أمبير ، نظام التشغيل: Android 11 ، الاتصال: 5G ، Wi-Fi ، Bluetooth ، NFC ، مستشعرات: ، أبيض.",
+        //    LanguageID = "AR",
+        //    Active = true,
+        //    Timestamp = DateTime.Now
+        //}); ;
+        // }
         // GET: api/<ProductsController>
         [HttpGet, Route("/api/products/LoadPartialData")]
         public IEnumerable<ProductView> LoadPartialData(int pageSize, int pageNumber,string Lan,string groupOptions, string subGroupOptions)
@@ -207,7 +170,7 @@ namespace WebService.Controllers
         }
 
         // POST api/<ProductsController>
-        [HttpPost]
+        [HttpPost, Route("/api/products/Create")]
         public void Create([FromBody] Product value)
         {
             DataProducts.AddEntityAsync<Product>(value);
@@ -215,17 +178,31 @@ namespace WebService.Controllers
 
 
         // PUT api/<ProductsController>/5
-        [HttpPost]
-        public async Task UpdateAsync([FromBody] ProductLanguage value)
+        [HttpPost, Route("/api/products/Update")]
+        public async Task UpdateAsync([FromBody] ProductView value,string Lan)
         {
-            // Retrieve the entity you want to update
-            ProductLanguage entity = await DataProducts.GetEntityAsync<ProductLanguage>(value.PartitionKey, value.RowKey);
 
-            entity.Name = value.Name;
 
-            // Update the entity in the table
-            await DataProducts.UpdateEntityAsync<ProductLanguage>(entity, entity.ETag);
+            // Retrieve the Product entity you want to update
+            Product productEntity = await DataProducts.GetEntityAsync<Product>(value.PartitionKey, value.RowKey);
+
+            //Mapper.Map(value, productEntity);
+
+
+            // Update the Product entity in the table
+            await DataProducts.UpdateEntityAsync<Product>(productEntity, productEntity.ETag);
+
+            // Retrieve the ProductLanguage entity you want to update
+           // ProductLanguage productLanguageEntity = await DataProductLanguages.GetEntityAsync<ProductLanguage>(value.PartitionKey, value.RowKey);
+
+            // Update properties of the ProductLanguage entity
+           // productLanguageEntity.Name = value.Name;
+            // Update other properties as needed...
+
+            // Update the ProductLanguage entity in the table
+           // await DataProductLanguages.UpdateEntityAsync<ProductLanguage>(productLanguageEntity, productLanguageEntity.ETag);
         }
+
 
         // DELETE api/<ProductsController>/5
         [HttpDelete("{RowKey}"),Route("/api/products/delete/{RowKey}")]
