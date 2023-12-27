@@ -25,9 +25,6 @@ namespace WebService.Controllers
         {
         }
 
-
-
-
         // GET: api/<AccountCartsController>
         [HttpGet, Route("/api/AccountCarts/LoadPartialData")]
         public IEnumerable<AccountCarts> LoadPartialData(int pageSize, int pageNumber)
