@@ -12,12 +12,6 @@
       "type": "cosmosdb.azure",
       "connectionId": "CosmosDB",
       "dynamicId": null
-    },
-    "secrets1": {
-      "secretStore": null,
-      "resourceId": null,
-      "type": "secrets.user",
-      "connectionId": null
     }
   }
 }

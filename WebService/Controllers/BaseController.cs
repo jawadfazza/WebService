@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
