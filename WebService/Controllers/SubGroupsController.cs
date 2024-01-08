@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿
+using Azure;
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +18,8 @@ namespace WebService.Controllers
     [ApiController]
     public class SubGroupsController : BaseController
     {
-        public SubGroupsController(IConfiguration configuration) : base(configuration)
-        {
+        
+        public SubGroupsController(IConfiguration configuration) : base(configuration) { 
         }
 
         //public SubGroupsController(IConfiguration configuration)

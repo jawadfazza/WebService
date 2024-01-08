@@ -18,29 +18,17 @@ namespace WebService.Controllers
 {
     [Route("api/AccountCarts")]
     [ApiController]
-    public class AccountCartsController : ControllerBase
+    public class AccountCartsController : BaseController
     {
-        TableClient tableClient;
-        public AccountCartsController(IConfiguration configuration)
+        public AccountCartsController(IConfiguration configuration) : base(configuration)
         {
-
-            string tableName = "DataAccountCarts";
-            // New instance of the TableClient class
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-            // New instance of TableClient class referencing the server-side table
-
-            tableServiceClient.CreateTableIfNotExists(tableName: tableName);
-            tableClient = tableServiceClient.GetTableClient(
-                tableName: tableName
-            );
-
         }
 
         // GET: api/<AccountCartsController>
         [HttpGet, Route("/api/AccountCarts/LoadPartialData")]
         public IEnumerable<AccountCarts> LoadPartialData(int pageSize, int pageNumber)
         {
-            var AccountCarts = tableClient.Query<AccountCarts>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var AccountCarts = DataAccountCarts.Query<AccountCarts>().OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return AccountCarts;
@@ -49,7 +37,7 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/AccountCarts/LoadPartialDataWithSearch")]
         public IEnumerable<AccountCarts> LoadPartialData(int pageSize, int pageNumber, string searchQuery)
         {
-            var AccountCarts = tableClient.Query<AccountCarts>().Where(x => x.ProductName.Contains(searchQuery) ).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
+            var AccountCarts = DataAccountCarts.Query<AccountCarts>().Where(x => x.ProductName.Contains(searchQuery) ).OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
             return AccountCarts;
@@ -61,7 +49,7 @@ namespace WebService.Controllers
         public IEnumerable<AccountCarts> LoadAllData()
         {
 
-            var AccountCarts = tableClient.Query<AccountCarts>().OrderBy(x => x.Seq).ToList();
+            var AccountCarts = DataAccountCarts.Query<AccountCarts>().OrderBy(x => x.Seq).ToList();
             return null;
         }
 
@@ -69,7 +57,7 @@ namespace WebService.Controllers
         [HttpGet("{id}")]
         public AccountCarts Get(string RowKey)
         {
-            var AccountCarts = tableClient.Query<AccountCarts>(x => x.RowKey == RowKey).FirstOrDefault();
+            var AccountCarts = DataAccountCarts.Query<AccountCarts>(x => x.RowKey == RowKey).FirstOrDefault();
 
             return AccountCarts;
         }
@@ -79,7 +67,7 @@ namespace WebService.Controllers
         public AccountCarts Create([FromBody] AccountCarts value)
         {
             value.RowKey = Guid.NewGuid().ToString();
-            tableClient.AddEntity<AccountCarts>(new AccountCarts()
+            DataAccountCarts.AddEntity<AccountCarts>(new AccountCarts()
             {
                 Seq = 2,
                 PartitionKey = "1",
@@ -97,20 +85,20 @@ namespace WebService.Controllers
         public async Task UpdateAsync([FromBody] AccountCarts value)
         {
             // Retrieve the entity you want to update
-            AccountCarts entity = await tableClient.GetEntityAsync<AccountCarts>(value.PartitionKey, value.RowKey);
+            AccountCarts entity = await DataAccountCarts.GetEntityAsync<AccountCarts>(value.PartitionKey, value.RowKey);
 
             entity.Quantity = value.Quantity;
           
 
             // Update the entity in the table
-            await tableClient.UpdateEntityAsync<AccountCarts>(entity, entity.ETag);
+            await DataAccountCarts.UpdateEntityAsync<AccountCarts>(entity, entity.ETag);
         }
 
         // DELETE api/<AccountCartsController>/5
         [HttpDelete("{RowKey}"), Route("/api/AccountCarts/delete/{RowKey}")]
         public void Delete(string RowKey)
         {
-            var AccountCarts = tableClient.DeleteEntityAsync("1", RowKey);
+            var AccountCarts = DataAccountCarts.DeleteEntityAsync("1", RowKey);
         }
 
 

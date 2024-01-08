@@ -4,7 +4,9 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VaultUri": "https://webservicevault.vault.azure.net/",
+        "AZURE_USERNAME": "e.jawadfazza@hotmail.com"
       },
       "nativeDebugging": true
     },
@@ -23,7 +25,9 @@
       "launchUrl": "https://localhost:4752",
       "environmentVariables": {
         "ASPNETCORE_URLS": "https://localhost:4752;http://localhost:4752",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VaultUri": "https://webservicevault.vault.azure.net/",
+        "AZURE_USERNAME": "e.jawadfazza@hotmail.com"
       },
       "distributionName": ""
     }

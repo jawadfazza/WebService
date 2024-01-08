@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +20,7 @@ namespace WebService.Controllers
     {
         public ProductsController(IConfiguration configuration) : base(configuration)
         {
+
         }
 
 
