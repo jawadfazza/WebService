@@ -12,7 +12,6 @@ namespace WebService.Controllers
     {
         private const string UploadDirectory = "Uploads"; // Directory to store uploaded images
 
-            [HttpPost]
         [HttpPost, Route("/api/ImageUpload/UploadImage")]
         public async Task<IActionResult> UploadImage()
         {
