@@ -25,24 +25,6 @@ namespace WebService.Controllers
         {
         }
 
-
-
-
-        //public AccountsController(IConfiguration configuration)
-        //{
-
-        //    string tableName = "DataAccounts";
-        //    // New instance of the DataAccounts class
-        //    TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-        //    // New instance of DataAccounts class referencing the server-side table
-
-        //    tableServiceClient.CreateTableIfNotExists(tableName: tableName);
-        //    DataAccounts = tableServiceClient.GetDataAccounts(
-        //        tableName: tableName
-        //    );
-
-        //}
-
         // GET: api/<AccountsController>
         [HttpGet, Route("/api/Accounts/LoadPartialData")]
         public IEnumerable<Accounts> LoadPartialData(int pageSize, int pageNumber)

@@ -119,39 +119,40 @@ namespace WebService.Controllers
         [HttpGet, Route("/api/Stores/LoadPartialDataWithSearch")]
         public IEnumerable<StoreView> LoadPartialData(int pageSize, int pageNumber, string searchQuery, string Lan, string groupOptions)
         {
-            var Stores = (from a in DataStores.Query<Store>().Where(x => x.Active && (x.GroupRowKey == groupOptions || groupOptions == null))
-                            join b in DataStoreLanguages.Query<StoreLanguage>().Where(x => x.LanguageID == Lan && x.Active)
-                            .Where(x => x.Name.Contains(searchQuery) || x.Description.Contains(searchQuery)) on a.RowKey equals b.StoreRowKey
-                            select new
-                            StoreView
-                            {
-                                RowKey = a.RowKey,
-                                ImageURL = a.ImageURL,
-                                PartitionKey = a.PartitionKey,
-                                Seq = a.Seq,
-                                // Assigning properties from Store class to StoreView class
-                                Name = b.Name,
-                                Description = b.Description,
-                                Location = a.Location,
-                                Active = a.Active,
-                                OpeningHours = a.OpeningHours,
-                                ClosingHours = a.ClosingHours,
-                                ContactNumber = a.ContactNumber,
-                                Email = a.Email,
-                                Website = a.Website,
-                                Rating = a.Rating,
-                                NumberOfRatings = a.NumberOfRatings,
-                                Tags = a.Tags,
-                                Longitude = a.Longitude,
-                                Latitude = a.Latitude,
-                                GroupRowKey=a.GroupRowKey
-                                
+            // Split the search query into individual words
+            string[] searchKeywords = searchQuery.Split(' ');
 
-                            })
-                .OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-            return Stores;
+            var stores = (from a in DataStores.Query<Store>().Where(x => x.Active && (x.GroupRowKey == groupOptions || groupOptions == null))
+                          join b in DataStoreLanguages.Query<StoreLanguage>().Where(x => x.LanguageID == Lan && x.Active)
+                              .Where(x => searchKeywords.All(keyword => x.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) || x.Description.Contains(keyword,StringComparison.OrdinalIgnoreCase))) on a.RowKey equals b.StoreRowKey
+                          select new StoreView
+                          {
+                              RowKey = a.RowKey,
+                              ImageURL = a.ImageURL,
+                              PartitionKey = a.PartitionKey,
+                              Seq = a.Seq,
+                              Name = b.Name,
+                              Description = b.Description,
+                              Location = a.Location,
+                              Active = a.Active,
+                              OpeningHours = a.OpeningHours,
+                              ClosingHours = a.ClosingHours,
+                              ContactNumber = a.ContactNumber,
+                              Email = a.Email,
+                              Website = a.Website,
+                              Rating = a.Rating,
+                              NumberOfRatings = a.NumberOfRatings,
+                              Tags = a.Tags,
+                              Longitude = a.Longitude,
+                              Latitude = a.Latitude,
+                              GroupRowKey = a.GroupRowKey
+                          })
+                          .OrderBy(x => x.Seq)
+                          .Skip((pageNumber - 1) * pageSize)
+                          .Take(pageSize)
+                          .ToList();
+
+            return stores;
         }
 
 
