@@ -118,13 +118,15 @@ namespace WebService.Controllers
         }
 
         [HttpGet, Route("/api/products/LoadPartialDataWithSearch")]
-        public IEnumerable<ProductView> LoadPartialData(int pageSize, int pageNumber,string searchQuery, string Lan, string groupOptions, string subGroupOptions)
+        public IEnumerable<ProductView> LoadPartialData(int pageSize, int pageNumber, string searchQuery, string Lan, string groupOptions, string subGroupOptions)
         {
-            var products = (from a in DataProducts.Query<Product>().Where(x => x.Active && ( x.GroupRowKey==groupOptions || groupOptions==null) && (x.SubGroupRowKey == subGroupOptions || subGroupOptions == null))
+            // Split the search query into individual words
+            string[] searchKeywords = searchQuery.Split(' ');
+
+            var products = (from a in DataProducts.Query<Product>().Where(x => x.Active && (x.GroupRowKey == groupOptions || groupOptions == null) && (x.SubGroupRowKey == subGroupOptions || subGroupOptions == null))
                             join b in DataProductLanguages.Query<ProductLanguage>().Where(x => x.LanguageID == Lan && x.Active)
-                            .Where(x => x.Name.Contains(searchQuery) || x.Description.Contains(searchQuery) ) on a.RowKey equals b.ProductRowKey
-                            select new
-                            ProductView
+                                .Where(x => searchKeywords.All(keyword => x.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) || x.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))) on a.RowKey equals b.ProductRowKey
+                            select new ProductView
                             {
                                 RowKey = a.RowKey,
                                 Description = b.Description,
@@ -143,12 +145,13 @@ namespace WebService.Controllers
                                 ProductSpecifications = b.ProductSpecifications,
                                 ProductWeight = a.ProductWeight,
                                 StoreRowKey = a.StoreRowKey,
-                                
                                 Active = a.Active,
                             })
-                .OrderBy(x => x.Seq).Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+                            .OrderBy(x => x.Seq)
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
             return products;
         }
 

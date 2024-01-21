@@ -21,9 +21,11 @@ namespace WebService.Controllers
         public TableClient CodeGroupLanguages;
         public TableClient CodeSubGroupLanguages;
         public TableClient DataAccounts;
-        public TableClient DataAccountCarts;
         public TableClient DataAccountLocations;
 
+
+        public TableClient DataCarts;
+        public TableClient DataCartProducts;
         IConfiguration _configuration { get; }
         //public readonly IMapper _mapper;
 
@@ -45,10 +47,11 @@ namespace WebService.Controllers
             tableServiceClient.CreateTableIfNotExists(tableName: "DataStores");
             tableServiceClient.CreateTableIfNotExists(tableName: "DataStoreLanguages");
             tableServiceClient.CreateTableIfNotExists(tableName: "DataAccounts");
-            tableServiceClient.CreateTableIfNotExists(tableName: "DataAccountCarts");
             tableServiceClient.CreateTableIfNotExists(tableName: "DataAccountLocations");
 
-           
+            tableServiceClient.CreateTableIfNotExists(tableName: "DataCarts");
+            tableServiceClient.CreateTableIfNotExists(tableName: "DataCartProducts");
+
             DataProducts = tableServiceClient.GetTableClient(
                 tableName: "DataProducts"
             );
@@ -83,9 +86,13 @@ namespace WebService.Controllers
             DataAccountLocations = tableServiceClient.GetTableClient(
                tableName: "DataAccountLocations"
            );
-            DataAccountCarts = tableServiceClient.GetTableClient(
-                tableName: "DataAccountCarts"
+
+            DataCarts = tableServiceClient.GetTableClient(
+                tableName: "DataCarts"
             );
+            DataCarts = tableServiceClient.GetTableClient(
+               tableName: "DataCartProducts"
+           );
         }
 
        
