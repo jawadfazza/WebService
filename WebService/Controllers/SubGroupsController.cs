@@ -19,7 +19,8 @@ namespace WebService.Controllers
     public class SubGroupsController : BaseController
     {
         
-        public SubGroupsController(IConfiguration configuration) : base(configuration) { 
+        public SubGroupsController(IConfiguration configuration) : base(configuration) {
+           
         }
 
         //public SubGroupsController(IConfiguration configuration)
@@ -38,6 +39,7 @@ namespace WebService.Controllers
         //   );
 
         //    //CreateSubGroupElectronics();
+        //    //CreateSubGroupBooks();
         //    //CreateSubGroupAutomotive();
         //    //CreateSubGroupBabyKids();
         //    //CreateSubGroupBeautyPersonalCare();

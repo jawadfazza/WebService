@@ -25,10 +25,8 @@ namespace WebService.Controllers
         {
         }
 
-            TableServiceClient tableServiceClient = new TableServiceClient(configuration.GetConnectionString("CosmosDB"));
-                tableName: tableName
 
-        }
+
 
         //public AccountsController(IConfiguration configuration)
         //{
@@ -108,8 +106,8 @@ namespace WebService.Controllers
                 AccountConfirmed = false,
                 Password = value.Password,
                 PasswordExpiredDate = DateTime.Now.ToUniversalTime(),
-                Gender=value.Gender,
-                PreferdLanguage=value.PreferdLanguage,
+                Gender = value.Gender,
+                PreferdLanguage = value.PreferdLanguage,
                 Timestamp = DateTime.Now,
                 AccountCreatedDate = DateTime.Now.ToUniversalTime(),
                 AccountStatus = value.AccountStatus,
@@ -117,8 +115,8 @@ namespace WebService.Controllers
                 LastLoginDate = DateTime.Now.ToUniversalTime(),
                 ProfilePictureUrl = value.ProfilePictureUrl,
                 UserRole = value.UserRole,
-                
-            }); 
+
+            });
 
             Mail.SendEmail(
                 "Email Confirmation",
@@ -170,7 +168,7 @@ namespace WebService.Controllers
         [HttpPost, Route("/api/Accounts/Login")]
         public Accounts Login([FromBody] Accounts value)
         {
-            var Accounts = DataAccounts.Query<Accounts>(x => x.Email==value.Email && x.Password==value.Password).FirstOrDefault();
+            var Accounts = DataAccounts.Query<Accounts>(x => x.Email == value.Email && x.Password == value.Password).FirstOrDefault();
             if (Accounts != null)
             {
                 return Accounts;
