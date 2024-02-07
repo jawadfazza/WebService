@@ -90,15 +90,19 @@ namespace WebService.Controllers
         public IEnumerable<ProductView> LoadPartialData(int pageSize, int pageNumber,string Lan,string groupOptions, string subGroupOptions)
         {
             var products = (from a in DataProducts.Query<Product>().Where(x => x.Active && (x.GroupRowKey == groupOptions || groupOptions == null) && (x.SubGroupRowKey == subGroupOptions || subGroupOptions == null))
-                            join b in DataProductLanguages.Query<ProductLanguage>().Where(x => x.LanguageID == Lan &&x.Active) on a.RowKey equals b.ProductRowKey select new
+                            join b in DataProductLanguages.Query<ProductLanguage>().Where(x => x.LanguageID == Lan &&x.Active) on a.RowKey equals b.ProductRowKey
+                            join c in DataStoreLanguages.Query<StoreLanguage>().Where(x => x.LanguageID == Lan && x.Active) on a.StoreRowKey equals c.StoreRowKey into LJ1
+                            from R1 in LJ1.DefaultIfEmpty()
+                            select new 
                              ProductView {
                                 RowKey = a.RowKey,
                                 Description = b.Description,
                                 GroupRowKey = a.GroupRowKey,
+                                StoreDescription= b?.Description ?? "",
                                 ImageURL = a.ImageURL,
                                 Name = b.Name,
                                 PartitionKey = a.PartitionKey,
-                                Price = a.Price,
+                                Price = a.Price,  
                                 Seq = a.Seq,
                                 ProductAvailability=a.ProductAvailability,
                                 ProductBrand=a.ProductBrand,
@@ -109,6 +113,7 @@ namespace WebService.Controllers
                                 ProductSpecifications=b.ProductSpecifications,
                                 ProductWeight=a.ProductWeight,
                                 StoreRowKey=a.StoreRowKey,
+                                SubGroupRowKey=a.SubGroupRowKey,
                                 Active=a.Active
                             }).OrderBy(x => x.Seq)
                             .Skip((pageNumber - 1) * pageSize)
@@ -227,6 +232,7 @@ namespace WebService.Controllers
         public string Name { get; set; }
         public string Description { get; set; }
         public string StoreRowKey { get; set; }
+        public string? StoreDescription { get; set; }
         public string GroupRowKey { get; set; }
         public string SubGroupRowKey { get; set; }
         public string ImageURL { get; set; }

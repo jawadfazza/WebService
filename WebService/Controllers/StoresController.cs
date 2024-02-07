@@ -164,14 +164,14 @@ namespace WebService.Controllers
             return Stores;
         }
 
-        // GET api/<StoresController>/5
-        [HttpGet("{id}")]
-        public Store Get(string RowKey)
+        [HttpGet, Route("/api/Stores/GetByRowKey")]
+        public Accounts Get(string RowKey)
         {
-            var Store = DataStores.Query<Store>(x => x.RowKey == RowKey).FirstOrDefault();
+            var Accounts = DataStores.Query<Accounts>(x => x.RowKey == RowKey).FirstOrDefault();
 
-            return Store;
+            return Accounts;
         }
+
 
         // POST api/<StoresController>
         [HttpPost]
